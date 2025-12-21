@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>White Mountain Pictures</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="utility-bar">
+        <div class="utility-links">
+          <a href="https://nh48-api.netlify.app" rel="noreferrer">NH48-API</a>
+          <span aria-hidden="true">|</span>
+          <a href="https://www.peakbagger.com" rel="noreferrer">Peakbagger</a>
+        </div>
+        <div class="utility-tagline">Photo notes from the high peaks</div>
+      </div>
+      <div class="primary-nav">
+        <a class="brand" href="#">White Mountain Pictures</a>
+        <nav>
+          <a href="#gallery">Gallery</a>
+          <a href="#stories">Photo Notes</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>A photo blog for the White Mountains</h1>
+          <p>
+            This space is all about the images: trail light, summit views, and small
+            details captured on the ridge. Each photo includes the location, timing, and
+            a few quick notes for future reference.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#gallery">Browse the gallery</a>
+            <a class="button ghost" href="#stories">Read photo notes</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2>Coming soon</h2>
+          <p>
+            Once the Cloudflare gallery is ready, this page will automatically pull
+            in PNG uploads and populate the grid below.
+          </p>
+          <ul>
+            <li>Summit timelines</li>
+            <li>Weather notes</li>
+            <li>Gear used</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="gallery" class="gallery">
+        <div class="section-header">
+          <h2>Latest uploads</h2>
+          <p>PNG images will appear here as soon as the Cloudflare storage is live.</p>
+        </div>
+        <div class="gallery-grid" id="galleryGrid">
+          <!-- Placeholder cards until Cloudflare data is connected -->
+        </div>
+      </section>
+
+      <section id="stories" class="stories">
+        <div class="section-header">
+          <h2>Photo notes</h2>
+          <p>
+            Short observations accompany each upload. Think trail conditions, light
+            quality, and anything worth remembering.
+          </p>
+        </div>
+        <div class="story-cards">
+          <article>
+            <h3>Franconia Ridge sunrise</h3>
+            <p>Clear skies, early alpenglow, steady northwest breeze.</p>
+          </article>
+          <article>
+            <h3>Washington observatory glow</h3>
+            <p>Evening fog lifted for a brief window of pink alpine light.</p>
+          </article>
+          <article>
+            <h3>Presidential traverse textures</h3>
+            <p>Granite patterns after rain, soft cloud cover kept the colors muted.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="about" class="about">
+        <div class="section-header">
+          <h2>About this project</h2>
+          <p>
+            White Mountain Pictures is a lightweight photo journal. The focus is on
+            the images and simple, helpful context instead of long-form writeups.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="site-footer">
+      <div>
+        <strong>White Mountain Pictures</strong>
+        <p>Reach out for print requests or collaboration.</p>
+      </div>
+      <a class="button ghost" href="mailto:hello@whitemountain.pictures">hello@whitemountain.pictures</a>
+    </footer>
+
+    <script src="main.js"></script>
+  </body>
+</html>
