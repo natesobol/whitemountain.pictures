@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Map | White Mountain Pictures</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-sA+4pslpNT7oz+S03xdmKI1s0p8pVLtVPQ1aoXwE0XQ="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="map-page">
+    <header class="site-header">
+      <div class="utility-bar">
+        <div class="utility-links">
+          <a href="https://nh48-api.netlify.app" rel="noreferrer">NH48-API</a>
+          <span aria-hidden="true">|</span>
+          <a href="https://www.peakbagger.com" rel="noreferrer">Peakbagger</a>
+        </div>
+        <div class="utility-tagline">Trail lines & peak markers</div>
+      </div>
+      <div class="primary-nav">
+        <a class="brand" href="/">White Mountain Pictures</a>
+        <nav>
+          <a href="#map">Gallery map</a>
+          <a href="index.html#gallery">Gallery</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="map-main">
+      <section class="map-lede">
+        <div>
+          <p class="eyebrow">Gallery map</p>
+          <h1>Pin photo ideas across the Whites</h1>
+          <p>
+            Trails from WMNF, Pliney, and Maine datasets are drawn alongside the
+            highest 2,000 ft peaks. Use this map to drop photo locations and keep
+            notes on the terrain.
+          </p>
+        </div>
+      </section>
+      <section id="map" class="map-container">
+        <div id="galleryMap" aria-label="Trail and peak map"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>White Mountain Pictures</strong>
+        <p>Map powered by OSM trails and peak data.</p>
+      </div>
+      <a class="button ghost" href="mailto:hello@whitemountain.pictures">Email</a>
+    </footer>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    ></script>
+    <script src="gallery-map.js"></script>
+  </body>
+</html>
