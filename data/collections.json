@@ -1,0 +1,170 @@
+[
+  {
+    "id": "presidential-range",
+    "slug": "presidential-range",
+    "title": "Presidential Range",
+    "subtitle": "Wind, cloud, and hard alpine light above treeline",
+    "description": "A gallery for the broad shoulders of the Presidentials: rime-coated summits, moving weather, and long sightlines that feel larger than the frame.",
+    "coverImage": "/images/placeholders/blue-hour-over-mount-adams.svg",
+    "tags": [
+      "alpine",
+      "ridges",
+      "weather",
+      "presidentials"
+    ],
+    "sortOrder": 10,
+    "featured": true,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Mount Washington",
+      "Gulfside Trail",
+      "Mount Adams",
+      "Mount Monroe"
+    ],
+    "seasonHints": [
+      "Autumn",
+      "Winter",
+      "Summer"
+    ]
+  },
+  {
+    "id": "franconia-ridge",
+    "slug": "franconia-ridge",
+    "title": "Franconia Ridge",
+    "subtitle": "Open ledge, big horizon, and trail-line geometry",
+    "description": "A collection built around the sharp rhythm of Franconia Ridge: cairns, cloud shadows, and the long exposed line from Liberty to Lafayette.",
+    "coverImage": "/images/placeholders/lafayette-from-greenleaf-turn.svg",
+    "tags": [
+      "ridgewalk",
+      "exposure",
+      "ledges",
+      "notch"
+    ],
+    "sortOrder": 20,
+    "featured": true,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Greenleaf Trail",
+      "Mount Lafayette",
+      "Mount Lincoln",
+      "Mount Liberty"
+    ],
+    "seasonHints": [
+      "Summer",
+      "Autumn"
+    ]
+  },
+  {
+    "id": "winter-forests",
+    "slug": "winter-forests",
+    "title": "Winter Forests",
+    "subtitle": "Blue shadow, birch bark, and quiet snowpack",
+    "description": "Photographs from the colder side of the White Mountains: tucked-in ravines, soft light in the trees, and the subdued detail that appears once the crowds thin out.",
+    "coverImage": "/images/placeholders/birch-lanterns-in-cold-hollow.svg",
+    "tags": [
+      "winter",
+      "forest",
+      "snow",
+      "quiet"
+    ],
+    "sortOrder": 30,
+    "featured": false,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Zealand Valley",
+      "Owls Head Path",
+      "Kancamagus Highway"
+    ],
+    "seasonHints": [
+      "Winter"
+    ]
+  },
+  {
+    "id": "waterfalls",
+    "slug": "waterfalls",
+    "title": "Waterfalls",
+    "subtitle": "Cold runoff, moss, spray, and spring volume",
+    "description": "Waterfall images with a White Mountains bias toward trailhead access, deep greens, and the misty edges where stream light feels almost metallic.",
+    "coverImage": "/images/placeholders/silver-cascade-morning-mist.svg",
+    "tags": [
+      "waterfalls",
+      "spring",
+      "mist",
+      "long-exposure"
+    ],
+    "sortOrder": 40,
+    "featured": true,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Crawford Notch",
+      "Franconia Falls",
+      "Kancamagus"
+    ],
+    "seasonHints": [
+      "Spring",
+      "Summer",
+      "Autumn"
+    ]
+  },
+  {
+    "id": "trail-details",
+    "slug": "trail-details",
+    "title": "Trail Details",
+    "subtitle": "The small surfaces that tell the whole story",
+    "description": "Close, tactile frames from the Whites: worn stone, bog bridges, cairns, blazes, and the subtle man-made marks that shape a mountain day.",
+    "coverImage": "/images/placeholders/cairn-line-below-lafayette.svg",
+    "tags": [
+      "trail",
+      "details",
+      "texture",
+      "signage"
+    ],
+    "sortOrder": 50,
+    "featured": false,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Franconia Ridge Trail",
+      "Crawford Path",
+      "Lonesome Lake Trail"
+    ],
+    "seasonHints": [
+      "Summer",
+      "Autumn",
+      "Winter"
+    ]
+  },
+  {
+    "id": "sunrise-alpenglow",
+    "slug": "sunrise-alpenglow",
+    "title": "Sunrise & Alpenglow",
+    "subtitle": "Early color across ridges, notches, and cold air layers",
+    "description": "Images anchored in first light: soft alpenglow, low valley haze, and the short windows when the Whites shift from slate to rose.",
+    "coverImage": "/images/placeholders/first-light-on-bondcliff.svg",
+    "tags": [
+      "sunrise",
+      "alpenglow",
+      "dawn",
+      "light"
+    ],
+    "sortOrder": 60,
+    "featured": true,
+    "status": "curating",
+    "photoCount": 5,
+    "locationHints": [
+      "Bondcliff",
+      "Crawford Notch",
+      "Zealand"
+    ],
+    "seasonHints": [
+      "Autumn",
+      "Winter",
+      "Summer"
+    ]
+  }
+]
+

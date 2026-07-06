@@ -1,0 +1,42 @@
+<section class="section section--tight">
+  <div class="container stack-md">
+    {{breadcrumbs}}
+    {{hero}}
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="detail-meta-grid">
+      {{collectionMeta}}
+    </div>
+  </div>
+</section>
+
+<section class="section" data-gallery-page>
+  <div class="container stack-lg">
+    <div class="section-heading section-heading--split">
+      <div>
+        <p class="eyebrow">Within this collection</p>
+        <h2>{{collectionHeading}}</h2>
+      </div>
+      <p class="section-copy">{{collectionLead}}</p>
+    </div>
+    <p class="results-summary" data-gallery-summary>Showing all collection photos.</p>
+    {{galleryGrid}}
+    <p class="empty-state" data-gallery-empty hidden>This placeholder collection does not have any photo records yet.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">Related collections</p>
+      <h2>More places to keep browsing</h2>
+    </div>
+    <div class="collection-grid collection-grid--compact">
+      {{relatedCollections}}
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,30 @@
+{
+  "siteName": "White Mountains Pictures",
+  "domain": "whitemountains.pictures",
+  "defaultTitle": "White Mountains Pictures",
+  "defaultDescription": "A gallery-first White Mountains site for atmospheric ridgelines, waterfalls, forest detail, and alpine light across New Hampshire's high country.",
+  "brandName": "White Mountains Pictures",
+  "tagline": "Fine-art White Mountains photography, built with the NH48 family shell and focused entirely on the gallery experience.",
+  "socialImage": "/images/social/default-og.svg",
+  "canonicalHost": "whitemountains.pictures",
+  "locale": "en_US",
+  "author": "Nathan Sobol",
+  "hero": {
+    "eyebrow": "White Mountains gallery",
+    "title": "Photography built for the ridgeline, the weather, and the quiet in between.",
+    "description": "White Mountains Pictures is the gallery-only sibling to the NH48 ecosystem: a clean, crawlable, Cloudflare-ready home for collections, photo details, and placeholder archives while the full image catalog comes together.",
+    "primaryCtaLabel": "Explore the gallery",
+    "primaryCtaHref": "/gallery",
+    "secondaryCtaLabel": "Browse collections",
+    "secondaryCtaHref": "/collections"
+  },
+  "theme": {
+    "defaultMode": "dark",
+    "accent": "#22c55e",
+    "accentWarm": "#f59e0b",
+    "surfaceDark": "#111827",
+    "surfaceLight": "#f8fafc"
+  },
+  "footerNote": "White Mountains Pictures keeps the NH48-family rhythm and shell language, but focuses entirely on photography collections, image detail pages, and rich source-visible HTML."
+}
+

@@ -1,0 +1,128 @@
+{
+  "primary": [
+    {
+      "label": "Home",
+      "href": "/",
+      "matchPrefixes": [
+        "/"
+      ]
+    },
+    {
+      "label": "Gallery",
+      "href": "/gallery",
+      "matchPrefixes": [
+        "/gallery",
+        "/photo/"
+      ]
+    },
+    {
+      "label": "Collections",
+      "href": "/collections",
+      "matchPrefixes": [
+        "/collections",
+        "/collections/"
+      ],
+      "dropdown": "featuredCollections"
+    },
+    {
+      "label": "Featured",
+      "href": "/featured",
+      "matchPrefixes": [
+        "/featured"
+      ]
+    },
+    {
+      "label": "About",
+      "href": "/about",
+      "matchPrefixes": [
+        "/about"
+      ]
+    }
+  ],
+  "headerSearch": {
+    "action": "/gallery",
+    "inputName": "q",
+    "placeholder": "Find light, location, or subject"
+  },
+  "cta": {
+    "label": "Explore Collections",
+    "href": "/collections"
+  },
+  "footerColumns": [
+    {
+      "title": "Browse",
+      "links": [
+        {
+          "label": "Home",
+          "href": "/"
+        },
+        {
+          "label": "All Photos",
+          "href": "/gallery"
+        },
+        {
+          "label": "Collections",
+          "href": "/collections"
+        },
+        {
+          "label": "Featured",
+          "href": "/featured"
+        }
+      ]
+    },
+    {
+      "title": "About",
+      "links": [
+        {
+          "label": "About the project",
+          "href": "/about"
+        },
+        {
+          "label": "Sitemap",
+          "href": "/sitemap.xml"
+        },
+        {
+          "label": "Image sitemap",
+          "href": "/image-sitemap.xml"
+        },
+        {
+          "label": "Robots",
+          "href": "/robots.txt"
+        }
+      ]
+    },
+    {
+      "title": "NH48 Family",
+      "links": [
+        {
+          "label": "nh48.info",
+          "href": "https://nh48.info",
+          "external": true
+        },
+        {
+          "label": "nh48.app",
+          "href": "https://nh48.app",
+          "external": true
+        },
+        {
+          "label": "nh48pics.com",
+          "href": "https://nh48pics.com",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "legalLinks": [
+    {
+      "label": "Canonical host",
+      "href": "https://whitemountains.pictures",
+      "external": true
+    },
+    {
+      "label": "GitHub source",
+      "href": "https://github.com",
+      "external": true
+    }
+  ]
+}
+

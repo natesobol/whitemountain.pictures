@@ -1,0 +1,32 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "whitemountains-pictures"
+main = "src/worker.js"
+compatibility_date = "2026-04-09"
+
+[vars]
+CANONICAL_HOST = "whitemountains.pictures"
+CANONICAL_SCHEME = "https"
+
+[[routes]]
+pattern = "whitemountains.pictures/*"
+zone_name = "whitemountains.pictures"
+
+[[routes]]
+pattern = "www.whitemountains.pictures/*"
+zone_name = "whitemountains.pictures"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "drop-trailing-slash"
+not_found_handling = "404-page"
+
+[env.preview]
+name = "whitemountains-pictures-preview"
+workers_dev = true
+
+[env.preview.vars]
+CANONICAL_HOST = "whitemountains.pictures"
+CANONICAL_SCHEME = "https"
+
