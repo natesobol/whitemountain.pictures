@@ -51,15 +51,18 @@ function updateOptionAvailability(form, catalog, filters) {
   }
 }
 
-function bindFeature(link, featured) {
+function updateFeatured(link, featured) {
   if (!(link instanceof HTMLAnchorElement) || !(featured.image instanceof HTMLImageElement)) return;
-  const activate = () => {
-    if (link.dataset.hero) featured.image.src = link.dataset.hero;
-    featured.image.alt = link.dataset.alt ?? "";
-    if (featured.title) featured.title.textContent = link.dataset.title ?? "";
-    if (featured.place) featured.place.textContent = link.dataset.place ?? "";
-    if (featured.link instanceof HTMLAnchorElement) featured.link.href = link.href;
-  };
+  if (link.dataset.hero) featured.image.src = link.dataset.hero;
+  featured.image.alt = link.dataset.alt ?? "";
+  if (featured.title) featured.title.textContent = link.dataset.title ?? "";
+  if (featured.place) featured.place.textContent = link.dataset.place ?? "";
+  if (featured.link instanceof HTMLAnchorElement) featured.link.href = link.href;
+}
+
+function bindFeature(link, featured) {
+  if (!(link instanceof HTMLAnchorElement)) return;
+  const activate = () => updateFeatured(link, featured);
   link.addEventListener("pointerenter", activate, { passive: true });
   link.addEventListener("focus", activate);
 }
@@ -136,7 +139,10 @@ function initHomeCatalog() {
       const filters = normalizeFilters(filtersFromForm(form), catalog);
       const filtered = filterCatalog(catalog, filters);
       const visible = filtered.slice(0, visibleCount);
-      wall.replaceChildren(...visible.map((photo, index) => createWallCard(photo, index, featured)));
+      const visibleLinks = visible.map((photo, index) => createWallCard(photo, index, featured));
+      wall.replaceChildren(...visibleLinks);
+      if (featured.link instanceof HTMLAnchorElement) featured.link.hidden = visible.length === 0;
+      if (visibleLinks[0]) updateFeatured(visibleLinks[0], featured);
       if (resultCount) resultCount.textContent = `Showing ${visible.length} of ${filtered.length} photographs`;
       if (emptyState instanceof HTMLElement) emptyState.hidden = filtered.length > 0;
       if (loadMoreButton instanceof HTMLButtonElement) loadMoreButton.hidden = visible.length >= filtered.length;

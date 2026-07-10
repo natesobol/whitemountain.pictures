@@ -59,7 +59,7 @@ describe("catalog filters", () => {
   });
 
   it("matches search text without requiring diacritics", () => {
-    const accented = [{ ...photos[0], title: "Mount Móriah Rime" }];
+    const accented = [{ ...photos[0]!, title: "Mount Móriah Rime" }];
     expect(filterCatalog(accented, { ...DEFAULT_FILTERS, query: "moriah" })).toEqual(accented);
   });
 

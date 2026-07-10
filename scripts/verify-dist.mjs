@@ -30,6 +30,7 @@ const photoFiles = htmlFiles.filter((file) => /[\\/]photos[\\/](2025|2026)[\\/][
 const report = JSON.parse(await readFile(join(root, "build-report.json"), "utf8"));
 const home = await readFile(join(root, "index.html"), "utf8");
 const stylesheet = await readFile(join(root, report.assets.css), "utf8");
+const clientScript = await readFile(join(root, report.assets.js), "utf8");
 const archive = await readFile(join(root, "photos", "index.html"), "utf8");
 const about = await readFile(join(root, "about", "nathan-sobol", "index.html"), "utf8");
 const licensing = await readFile(join(root, "licensing", "index.html"), "utf8");
@@ -72,6 +73,9 @@ assert(stylesheet.includes(".mobile-nav"), "Stylesheet has no mobile navigation 
 assert(stylesheet.includes("[data-archive-card][hidden]"), "Stylesheet does not honor enhanced archive visibility");
 assert(stylesheet.includes("content-visibility: auto"), "Archive cards do not defer offscreen rendering");
 assert(/@media\s*\(min-width:\s*821px\)\s*and\s*\(max-width:\s*1120px\)/.test(stylesheet), "Hero has no protected intermediate breakpoint");
+assert(clientScript.includes(report.uiAssets.catalogCore), "Client does not import the generated catalog-core asset");
+assert(clientScript.includes('window.addEventListener("popstate"'), "Client does not restore filter history state");
+assert(clientScript.includes("featured.link.hidden = visible.length === 0"), "Home filtering can leave a stale featured photograph visible");
 
 const sitemap = await readFile(join(root, "sitemaps", "photos.xml"), "utf8");
 const sitemapPages = new Set([...sitemap.matchAll(/<loc>(https:\/\/whitemountains\.pictures\/photos\/[^<]+)<\/loc>/g)].map((match) => match[1]));
