@@ -21,6 +21,8 @@
 
 ### Task 1: Pure catalog state
 
+**Execution status:** Completed in `7933a77`; red-green evidence retained in the task history.
+
 **Files:**
 - Create: `src/catalog-core.js`
 - Create: `tests/catalog-core.test.ts`
@@ -65,6 +67,8 @@ git commit -m "feat: add testable archive filter state"
 ```
 
 ### Task 2: Generated semantic and conversion contract
+
+**Execution status:** Completed in `3676c3a`; all generated-output assertions pass.
 
 **Files:**
 - Modify: `scripts/build.mjs`
@@ -125,6 +129,8 @@ git commit -m "feat: strengthen generated site UX contracts"
 
 ### Task 3: Resilient progressive enhancement
 
+**Execution status:** Completed in `4ab5c68` and hardened in `77b075d`; 16 tests pass.
+
 **Files:**
 - Modify: `src/client.js`
 - Modify: `tests/catalog-core.test.ts`
@@ -170,6 +176,8 @@ git commit -m "feat: add resilient archive interactions"
 
 ### Task 4: Shared visual-system and responsive cleanup
 
+**Execution status:** Completed in `2459fbd`; emitted CSS parses with zero warnings.
+
 **Files:**
 - Modify: `src/styles.css`
 - Modify: `scripts/verify-dist.mjs`
@@ -206,6 +214,8 @@ git commit -m "style: normalize site-wide layout and interaction states"
 ```
 
 ### Task 5: Full verification and rendered QA
+
+**Execution status:** Automated gate and completion audit are complete. Desktop/mobile rendered QA remains pending because the in-app Browser security policy blocks the local target and forbids alternate browser-surface workarounds.
 
 **Files:**
 - Modify if defects are found: the smallest relevant source/test file.
