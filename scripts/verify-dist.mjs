@@ -29,6 +29,7 @@ const htmlFiles = files.filter((file) => file.endsWith(".html"));
 const photoFiles = htmlFiles.filter((file) => /[\\/]photos[\\/](2025|2026)[\\/][^\\/]+[\\/]index\.html$/.test(file));
 const report = JSON.parse(await readFile(join(root, "build-report.json"), "utf8"));
 const home = await readFile(join(root, "index.html"), "utf8");
+const stylesheet = await readFile(join(root, report.assets.css), "utf8");
 const archive = await readFile(join(root, "photos", "index.html"), "utf8");
 const about = await readFile(join(root, "about", "nathan-sobol", "index.html"), "utf8");
 const licensing = await readFile(join(root, "licensing", "index.html"), "utf8");
@@ -63,6 +64,14 @@ assert(licensing.includes("data-license-link"), "Licensing contact cannot receiv
 assert(samplePhoto.includes(" 640w") && samplePhoto.includes(" 2400w"), "Photo srcset descriptors are incorrect");
 assert(samplePhoto.includes("/licensing/?photo="), "Photo licensing CTA does not preserve photo context");
 assert(samplePhoto.includes('href="/photos/" aria-current="page"'), "Photo pages do not identify the Archive section");
+
+assert(stylesheet.includes("--content-width: 1180px"), "Stylesheet has no shared content-width token");
+assert(stylesheet.includes("--space-7: 72px"), "Stylesheet has no shared spacing scale");
+assert(/\.page-hero\s*\{[^}]*margin:\s*0/s.test(stylesheet), "Photo figure margin is not reset");
+assert(stylesheet.includes(".mobile-nav"), "Stylesheet has no mobile navigation treatment");
+assert(stylesheet.includes("[data-archive-card][hidden]"), "Stylesheet does not honor enhanced archive visibility");
+assert(stylesheet.includes("content-visibility: auto"), "Archive cards do not defer offscreen rendering");
+assert(/@media\s*\(min-width:\s*821px\)\s*and\s*\(max-width:\s*1120px\)/.test(stylesheet), "Hero has no protected intermediate breakpoint");
 
 const sitemap = await readFile(join(root, "sitemaps", "photos.xml"), "utf8");
 const sitemapPages = new Set([...sitemap.matchAll(/<loc>(https:\/\/whitemountains\.pictures\/photos\/[^<]+)<\/loc>/g)].map((match) => match[1]));
