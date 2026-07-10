@@ -53,6 +53,16 @@ describe("catalog filters", () => {
       .toEqual({ year: "all", season: "all", status: "all", query: "Ridge" });
   });
 
+  it("maps structured values to their canonical display casing", () => {
+    expect(normalizeFilters({ year: "2026", season: "winter", status: "REVIEWED", query: "" }, photos))
+      .toEqual({ year: "2026", season: "Winter", status: "reviewed", query: "" });
+  });
+
+  it("matches search text without requiring diacritics", () => {
+    const accented = [{ ...photos[0], title: "Mount Móriah Rime" }];
+    expect(filterCatalog(accented, { ...DEFAULT_FILTERS, query: "moriah" })).toEqual(accented);
+  });
+
   it("counts options while ignoring the field being counted", () => {
     expect(optionCounts(photos, { year: "2026", season: "all", status: "pending", query: "" }, "season"))
       .toEqual(new Map([["Spring", 1]]));
@@ -77,6 +87,7 @@ describe("catalog URL state", () => {
     expect(filtersToSearch({ year: "all", season: "Winter", status: "all", query: "  ridge " }))
       .toBe("?season=Winter&q=ridge");
     expect(filtersToSearch(DEFAULT_FILTERS)).toBe("");
+    expect(filtersToSearch({})).toBe("");
   });
 });
 

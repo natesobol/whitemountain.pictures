@@ -11,8 +11,18 @@ function clean(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function availableValues(items, field) {
-  return new Set(items.map((item) => clean(String(item[field] ?? ""))).filter(Boolean));
+function canonicalValues(items, field) {
+  return new Map(items
+    .map((item) => clean(String(item[field] ?? "")))
+    .filter(Boolean)
+    .map((value) => [value.toLocaleLowerCase(), value]));
+}
+
+function foldSearchText(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
 }
 
 export function normalizeFilters(input = {}, items = []) {
@@ -20,7 +30,8 @@ export function normalizeFilters(input = {}, items = []) {
 
   for (const field of FILTER_FIELDS) {
     const value = clean(input[field]) || "all";
-    normalized[field] = value === "all" || availableValues(items, field).has(value) ? value : "all";
+    const canonical = canonicalValues(items, field).get(value.toLocaleLowerCase());
+    normalized[field] = value.toLocaleLowerCase() === "all" ? "all" : (canonical ?? "all");
   }
 
   return normalized;
@@ -28,14 +39,14 @@ export function normalizeFilters(input = {}, items = []) {
 
 export function filterCatalog(items, input = DEFAULT_FILTERS) {
   const filters = normalizeFilters(input, items);
-  const query = filters.query.toLocaleLowerCase();
+  const query = foldSearchText(filters.query);
 
   return items.filter((item) => {
     const matchesFields = FILTER_FIELDS.every((field) => (
       filters[field] === "all" || String(item[field] ?? "") === filters[field]
     ));
     if (!matchesFields || !query) return matchesFields;
-    const searchable = `${item.title ?? ""} ${item.place ?? ""}`.toLocaleLowerCase();
+    const searchable = foldSearchText(`${item.title ?? ""} ${item.place ?? ""}`);
     return searchable.includes(query);
   });
 }
