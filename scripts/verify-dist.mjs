@@ -29,6 +29,10 @@ const htmlFiles = files.filter((file) => file.endsWith(".html"));
 const photoFiles = htmlFiles.filter((file) => /[\\/]photos[\\/](2025|2026)[\\/][^\\/]+[\\/]index\.html$/.test(file));
 const report = JSON.parse(await readFile(join(root, "build-report.json"), "utf8"));
 const home = await readFile(join(root, "index.html"), "utf8");
+const archive = await readFile(join(root, "photos", "index.html"), "utf8");
+const about = await readFile(join(root, "about", "nathan-sobol", "index.html"), "utf8");
+const licensing = await readFile(join(root, "licensing", "index.html"), "utf8");
+const samplePhoto = await readFile(photoFiles[0], "utf8");
 
 assert(report.totalPhotos === 356, `Expected 356 photos; found ${report.totalPhotos}`);
 assert(photoFiles.length === report.totalPhotos, `Expected ${report.totalPhotos} photo pages; found ${photoFiles.length}`);
@@ -38,6 +42,27 @@ assert((home.match(/<img\b/g) ?? []).length <= 25, "Homepage contains more than 
 assert((home.match(/loading="eager"/g) ?? []).length === 1, "Homepage should have exactly one eager image");
 assert((home.match(/fetchpriority="high"/g) ?? []).length === 1, "Homepage should have exactly one high-priority image");
 assert(/data-catalog-url="\/data\/photos\.[a-f0-9]{12}\.json"/.test(home), "Homepage catalog is not content-hashed and deferred");
+assert(home.includes('class="mobile-nav"'), "Homepage has no mobile navigation");
+assert(home.indexOf('class="hero-copy"') < home.indexOf("data-photo-wall"), "Hero copy must precede wall links");
+assert(home.includes("data-featured-link"), "Featured photograph is not actionable");
+assert(home.includes("data-catalog-empty"), "Homepage has no empty state");
+assert(home.includes("data-catalog-error"), "Homepage has no catalog error state");
+assert(home.includes('aria-live="polite"'), "Homepage result count is not announced");
+assert(archive.includes("data-archive-filters"), "Archive has no filters");
+assert(archive.includes("data-archive-search"), "Archive has no search field");
+assert(archive.includes("data-archive-card"), "Archive cards lack progressive-enhancement hooks");
+assert(archive.includes("data-archive-empty"), "Archive has no empty state");
+assert(archive.includes("data-archive-load-more"), "Archive has no progressive reveal control");
+assert(archive.includes('aria-live="polite"'), "Archive result count is not announced");
+assert(archive.includes("<ol>"), "Archive breadcrumbs do not use ordered-list semantics");
+
+assert(about.includes('href="/about/nathan-sobol/" aria-current="page"'), "About navigation has no current state");
+assert(licensing.includes('href="/licensing/" aria-current="page"'), "Licensing navigation has no current state");
+assert(licensing.includes("mailto:natesobol@gmail.com"), "Licensing has no direct contact action");
+assert(licensing.includes("data-license-link"), "Licensing contact cannot receive photo context");
+assert(samplePhoto.includes(" 640w") && samplePhoto.includes(" 2400w"), "Photo srcset descriptors are incorrect");
+assert(samplePhoto.includes("/licensing/?photo="), "Photo licensing CTA does not preserve photo context");
+assert(samplePhoto.includes('href="/photos/" aria-current="page"'), "Photo pages do not identify the Archive section");
 
 const sitemap = await readFile(join(root, "sitemaps", "photos.xml"), "utf8");
 const sitemapPages = new Set([...sitemap.matchAll(/<loc>(https:\/\/whitemountains\.pictures\/photos\/[^<]+)<\/loc>/g)].map((match) => match[1]));
@@ -45,6 +70,7 @@ assert(sitemapPages.size === report.approvedPhotos, `Photo sitemap contains ${si
 assert((sitemap.match(/<image:image>/g) ?? []).length === report.approvedPhotos, "Every indexed photo needs an image sitemap entry");
 
 let approvedPages = 0;
+let collectionLinkedPages = 0;
 for (const file of photoFiles) {
   const html = await readFile(file, "utf8");
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
@@ -56,6 +82,7 @@ for (const file of photoFiles) {
   assert(html.includes("Photo metadata"), `${file} has no visible metadata panel`);
   assert(!/(sourcePath|LensSerialNumber|SerialNumber|gpsLatitude|gpsLongitude)/.test(html), `${file} leaks a sensitive metadata field`);
   assert(!/https:\/\/whitemountains\.pictures\/photos\/(2025|2026)\/originals\//.test(html), `${file} uses the legacy original-image origin`);
+  if (html.includes('href="/collections/')) collectionLinkedPages += 1;
   if (!noindex) {
     approvedPages += 1;
     assert(sitemapPages.has(canonical), `${canonical} is indexable but absent from the photo sitemap`);
@@ -64,6 +91,7 @@ for (const file of photoFiles) {
   }
 }
 assert(approvedPages === report.approvedPhotos, `Found ${approvedPages} indexable photo pages; expected ${report.approvedPhotos}`);
+assert(collectionLinkedPages > 0, "Generated collection pages have no incoming photo links");
 
 for (const file of htmlFiles) {
   const html = await readFile(file, "utf8");
