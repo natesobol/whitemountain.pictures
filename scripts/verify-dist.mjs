@@ -70,6 +70,7 @@ assert(stylesheet.includes("--content-width: 1180px"), "Stylesheet has no shared
 assert(stylesheet.includes("--space-7: 72px"), "Stylesheet has no shared spacing scale");
 assert(/\.page-hero\s*\{[^}]*margin:\s*0/s.test(stylesheet), "Photo figure margin is not reset");
 assert(stylesheet.includes(".mobile-nav"), "Stylesheet has no mobile navigation treatment");
+assert(/\[hidden\]\s*\{[^}]*display:\s*none\s*!important/s.test(stylesheet), "Stylesheet allows component display rules to override the hidden attribute");
 assert(stylesheet.includes("[data-archive-card][hidden]"), "Stylesheet does not honor enhanced archive visibility");
 assert(stylesheet.includes("content-visibility: auto"), "Archive cards do not defer offscreen rendering");
 assert(/@media\s*\(min-width:\s*821px\)\s*and\s*\(max-width:\s*1120px\)/.test(stylesheet), "Hero has no protected intermediate breakpoint");
