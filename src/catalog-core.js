@@ -11,9 +11,21 @@ function clean(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function canonicalSeason(value) {
+  const season = clean(value);
+  if (season.toLocaleLowerCase() === "all") return "all";
+  if (/^(fall|autumn)$/i.test(season)) return "Autumn";
+  return season.replace(/^./, (letter) => letter.toLocaleUpperCase());
+}
+
+function fieldValue(item, field) {
+  const value = clean(String(item[field] ?? ""));
+  return field === "season" ? canonicalSeason(value) : value;
+}
+
 function canonicalValues(items, field) {
   return new Map(items
-    .map((item) => clean(String(item[field] ?? "")))
+    .map((item) => fieldValue(item, field))
     .filter(Boolean)
     .map((value) => [value.toLocaleLowerCase(), value]));
 }
@@ -29,7 +41,8 @@ export function normalizeFilters(input = {}, items = []) {
   const normalized = { ...DEFAULT_FILTERS, query: clean(input.query) };
 
   for (const field of FILTER_FIELDS) {
-    const value = clean(input[field]) || "all";
+    const rawValue = clean(input[field]) || "all";
+    const value = field === "season" ? canonicalSeason(rawValue) : rawValue;
     const canonical = canonicalValues(items, field).get(value.toLocaleLowerCase());
     normalized[field] = value.toLocaleLowerCase() === "all" ? "all" : (canonical ?? "all");
   }
@@ -43,7 +56,7 @@ export function filterCatalog(items, input = DEFAULT_FILTERS) {
 
   return items.filter((item) => {
     const matchesFields = FILTER_FIELDS.every((field) => (
-      filters[field] === "all" || String(item[field] ?? "") === filters[field]
+      filters[field] === "all" || fieldValue(item, field) === filters[field]
     ));
     if (!matchesFields || !query) return matchesFields;
     const searchable = foldSearchText(`${item.title ?? ""} ${item.place ?? ""}`);
@@ -58,7 +71,7 @@ export function optionCounts(items, input, field) {
   const counts = new Map();
 
   for (const item of filterCatalog(items, filters)) {
-    const value = clean(String(item[field] ?? ""));
+    const value = fieldValue(item, field);
     if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
   }
 
@@ -78,6 +91,7 @@ export function filtersFromSearch(search, items = []) {
 export function filtersToSearch(input = DEFAULT_FILTERS) {
   const params = new URLSearchParams();
   const filters = { ...DEFAULT_FILTERS, ...input, query: clean(input.query).toLocaleLowerCase() };
+  filters.season = canonicalSeason(filters.season) || "all";
 
   if (filters.year !== "all") params.set("year", filters.year);
   if (filters.season !== "all") params.set("season", filters.season);
@@ -93,4 +107,31 @@ export function nextVisibleCount(current, total, increment = 36) {
   const safeTotal = Math.max(0, Number(total) || 0);
   const safeIncrement = Math.max(0, Number(increment) || 0);
   return Math.min(safeCurrent + safeIncrement, safeTotal);
+}
+
+export function photographCount(count) {
+  const safeCount = Math.max(0, Number(count) || 0);
+  return `${safeCount} ${safeCount === 1 ? "photograph" : "photographs"}`;
+}
+
+export function archiveHeading(matching, total) {
+  const safeMatching = Math.max(0, Number(matching) || 0);
+  const safeTotal = Math.max(0, Number(total) || 0);
+  if (safeMatching === safeTotal) return photographCount(safeTotal);
+  if (safeMatching === 0) return "No matching photographs";
+  return `${safeMatching} matching ${safeMatching === 1 ? "photograph" : "photographs"}`;
+}
+
+export function archiveSummary(visible, matching, total) {
+  const safeVisible = Math.max(0, Number(visible) || 0);
+  const safeMatching = Math.max(0, Number(matching) || 0);
+  const safeTotal = Math.max(0, Number(total) || 0);
+  if (safeMatching === safeTotal) {
+    return `Showing ${safeVisible} of ${safeTotal} ${safeTotal === 1 ? "photograph" : "photographs"}`;
+  }
+  if (safeMatching === 0) return `0 matching photographs · ${safeTotal} total`;
+  if (safeVisible === safeMatching) {
+    return `Showing ${safeMatching} matching ${safeMatching === 1 ? "photograph" : "photographs"} · ${safeTotal} total`;
+  }
+  return `Showing ${safeVisible} of ${safeMatching} matching ${safeMatching === 1 ? "photograph" : "photographs"} · ${safeTotal} total`;
 }

@@ -1,5 +1,7 @@
 import {
   DEFAULT_FILTERS,
+  archiveHeading,
+  archiveSummary,
   filterCatalog,
   filtersFromSearch,
   filtersToSearch,
@@ -10,6 +12,17 @@ import {
 
 const INITIAL_VISIBLE = 24;
 const REVEAL_INCREMENT = 36;
+const announcementTimers = new WeakMap();
+
+function scheduleAnnouncement(element, message, delay = 220) {
+  if (!(element instanceof HTMLElement)) return;
+  window.clearTimeout(announcementTimers.get(element));
+  const timer = window.setTimeout(() => {
+    element.textContent = message;
+    announcementTimers.delete(element);
+  }, delay);
+  announcementTimers.set(element, timer);
+}
 
 function filtersFromForm(form) {
   if (!(form instanceof HTMLFormElement)) return { ...DEFAULT_FILTERS };
@@ -57,6 +70,7 @@ function updateFeatured(link, featured) {
   featured.image.alt = link.dataset.alt ?? "";
   if (featured.title) featured.title.textContent = link.dataset.title ?? "";
   if (featured.place) featured.place.textContent = link.dataset.place ?? "";
+  if (featured.meta) featured.meta.textContent = link.dataset.meta ?? "";
   if (featured.link instanceof HTMLAnchorElement) featured.link.href = link.href;
 }
 
@@ -72,20 +86,27 @@ function createWallCard(photo, index, featured) {
   link.className = `photo-tile ${photo.orientation === "portrait" ? "is-portrait" : "is-landscape"}`;
   link.href = photo.href;
   link.dataset.title = photo.title;
-  link.dataset.place = photo.place;
+  link.dataset.place = photo.locationLabel ?? photo.place;
   link.dataset.hero = photo.hero;
   link.dataset.alt = photo.alt;
+  link.dataset.meta = photo.meta ?? "";
+  link.setAttribute("aria-label", `${photo.locationLabel ?? photo.place} · ${photo.title}`);
 
   const image = document.createElement("img");
   image.src = photo.thumb;
-  image.alt = photo.alt;
+  image.alt = "";
   image.width = photo.width;
   image.height = photo.height;
-  image.loading = index === 0 ? "eager" : "lazy";
+  image.loading = "lazy";
   image.decoding = "async";
 
   const label = document.createElement("span");
-  label.textContent = photo.place;
+  label.setAttribute("aria-hidden", "true");
+  const place = document.createElement("strong");
+  place.textContent = photo.locationLabel ?? photo.place;
+  const title = document.createElement("small");
+  title.textContent = photo.title;
+  label.append(place, title);
   link.append(image, label);
   bindFeature(link, featured);
   return link;
@@ -98,6 +119,7 @@ function initHomeCatalog() {
 
   const loadMoreButton = document.querySelector("[data-load-more]");
   const resultCount = document.querySelector("[data-result-count]");
+  const resultAnnouncement = document.querySelector("[data-result-announcement]");
   const emptyState = document.querySelector("[data-catalog-empty]");
   const errorState = document.querySelector("[data-catalog-error]");
   const retryButton = document.querySelector("[data-catalog-retry]");
@@ -107,6 +129,7 @@ function initHomeCatalog() {
     image: document.querySelector("[data-featured-image]"),
     title: document.querySelector("[data-featured-title]"),
     place: document.querySelector("[data-featured-place]"),
+    meta: document.querySelector("[data-featured-meta]"),
   };
   let catalogPromise;
   let catalog = [];
@@ -140,10 +163,12 @@ function initHomeCatalog() {
       const filtered = filterCatalog(catalog, filters);
       const visible = filtered.slice(0, visibleCount);
       const visibleLinks = visible.map((photo, index) => createWallCard(photo, index, featured));
-      wall.replaceChildren(...visibleLinks);
+      wall.replaceChildren(...visibleLinks.slice(1));
       if (featured.link instanceof HTMLAnchorElement) featured.link.hidden = visible.length === 0;
       if (visibleLinks[0]) updateFeatured(visibleLinks[0], featured);
-      if (resultCount) resultCount.textContent = `Showing ${visible.length} of ${filtered.length} photographs`;
+      const summary = archiveSummary(visible.length, filtered.length, catalog.length);
+      if (resultCount) resultCount.textContent = summary;
+      scheduleAnnouncement(resultAnnouncement, summary);
       if (emptyState instanceof HTMLElement) emptyState.hidden = filtered.length > 0;
       if (loadMoreButton instanceof HTMLButtonElement) loadMoreButton.hidden = visible.length >= filtered.length;
       updateOptionAvailability(form, catalog, filters);
@@ -152,6 +177,7 @@ function initHomeCatalog() {
       setControlsDisabled(true);
       if (errorState instanceof HTMLElement) errorState.hidden = false;
       if (resultCount) resultCount.textContent = "Showing the initial selection";
+      scheduleAnnouncement(resultAnnouncement, "Filters are temporarily unavailable. Showing the initial selection.");
       if (loadMoreButton instanceof HTMLButtonElement) loadMoreButton.hidden = true;
     }
   };
@@ -207,6 +233,8 @@ function initArchiveCatalog() {
       status: element.dataset.status ?? "",
     }));
   const resultCount = root.querySelector("[data-archive-result-count]");
+  const resultAnnouncement = root.querySelector("[data-archive-announcement]");
+  const heading = root.querySelector("[data-archive-heading]");
   const emptyState = root.querySelector("[data-archive-empty]");
   const loadMoreButton = root.querySelector("[data-archive-load-more]");
   const resetButton = root.querySelector("[data-archive-reset]");
@@ -220,7 +248,10 @@ function initArchiveCatalog() {
     const visible = new Set(filtered.slice(0, visibleCount));
     root.dataset.enhanced = "true";
     for (const card of cards) card.element.hidden = !visible.has(card);
-    if (resultCount) resultCount.textContent = `Showing ${visible.size} of ${filtered.length} photographs`;
+    const summary = archiveSummary(visible.size, filtered.length, cards.length);
+    if (heading) heading.textContent = archiveHeading(filtered.length, cards.length);
+    if (resultCount) resultCount.textContent = summary;
+    scheduleAnnouncement(resultAnnouncement, summary);
     if (emptyState instanceof HTMLElement) emptyState.hidden = filtered.length > 0;
     if (loadMoreButton instanceof HTMLButtonElement) loadMoreButton.hidden = visible.size >= filtered.length;
     updateOptionAvailability(form, cards, filters);
@@ -250,6 +281,29 @@ function initArchiveCatalog() {
   });
 }
 
+function initMobileNavigation() {
+  const navigation = document.querySelector("[data-mobile-nav]");
+  if (!(navigation instanceof HTMLDetailsElement)) return;
+  const summary = navigation.querySelector("summary");
+  if (!(summary instanceof HTMLElement)) return;
+
+  const syncState = () => {
+    navigation.dataset.expanded = String(navigation.open);
+  };
+  navigation.addEventListener("toggle", syncState);
+  navigation.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !navigation.open) return;
+    navigation.open = false;
+    summary.focus();
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (navigation.open && event.target instanceof Node && !navigation.contains(event.target)) {
+      navigation.open = false;
+    }
+  });
+  syncState();
+}
+
 function initLicensingLink() {
   const link = document.querySelector("[data-license-link]");
   if (!(link instanceof HTMLAnchorElement)) return;
@@ -268,4 +322,5 @@ function initLicensingLink() {
 
 initHomeCatalog();
 initArchiveCatalog();
+initMobileNavigation();
 initLicensingLink();

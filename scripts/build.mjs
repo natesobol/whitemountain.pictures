@@ -115,11 +115,11 @@ function header(current = "") {
   return `<a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">▲</span>White Mountains Pictures</a>
   <nav class="desktop-nav" aria-label="Primary">${renderedLinks}</nav>
-  <details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile primary">${renderedLinks}</nav></details></header>`;
+  <details class="mobile-nav" data-mobile-nav><summary><span>Menu</span><span class="mobile-nav-indicator" aria-hidden="true"></span></summary><nav aria-label="Mobile primary">${renderedLinks}</nav></details></header>`;
 }
 
 function footer() {
-  return `<footer class="site-footer"><p>© Nathan Sobol. White Mountains, New Hampshire.</p><p><a href="/about/photo-metadata/">Metadata policy</a> · <a href="/licensing/">License a photograph</a></p></footer>`;
+  return `<footer class="site-footer"><p>© Nathan Sobol. White Mountains, New Hampshire.</p><nav class="footer-nav" aria-label="Footer"><a href="/about/photo-metadata/">Metadata policy</a><a href="/licensing/">License a photograph</a></nav></footer>`;
 }
 
 function breadcrumbs(items) {
@@ -127,6 +127,12 @@ function breadcrumbs(items) {
     ? `<li><a href="${href}">${escapeHtml(label)}</a></li>`
     : `<li><span aria-current="page">${escapeHtml(label)}</span></li>`);
   return `<nav class="breadcrumbs" aria-label="Breadcrumb"><ol>${parts.join("")}</ol></nav>`;
+}
+
+function titleLengthClass(title) {
+  if (title.length > 80) return "is-very-long";
+  if (title.length > 60) return "is-long";
+  return "";
 }
 
 function document({ title, description, path, body, robots = "index,follow,max-image-preview:large", image, schema = [], current = "", bodyClass = "" }) {
@@ -160,9 +166,9 @@ function breadcrumbSchema(items) {
   };
 }
 
-function card(photo, heading = "h2") {
-  const search = `${photo.title} ${photo.place}`.toLowerCase();
-  return `<a class="photo-card" href="${photoHref(photo)}" data-archive-card data-year="${photo.year}" data-season="${escapeHtml(photo.season)}" data-status="${photo.approved ? "reviewed" : "pending"}" data-search="${escapeHtml(search)}"><img src="${imageHref(photo, "card")}" width="${photo.width}" height="${photo.height}" alt="${escapeHtml(photo.alt)}" loading="lazy" decoding="async"><div class="photo-card-copy"><${heading}>${escapeHtml(photo.title)}</${heading}><p>${escapeHtml(photo.place)} · ${escapeHtml(formatDate(photo.captureDate))}</p><div class="badge-row"><span class="badge ${photo.approved ? "badge-approved" : "badge-review"}">${photo.approved ? "Metadata reviewed" : "Review pending"}</span><span class="badge">${photo.year}</span></div></div></a>`;
+function card(photo, heading = "h3") {
+  const search = `${photo.title} ${photo.locationLabel} ${photo.place}`.toLowerCase();
+  return `<a class="photo-card is-${photo.orientation}" aria-label="${escapeHtml(`${photo.title} — ${photo.locationLabel}`)}" href="${photoHref(photo)}" data-archive-card data-year="${photo.year}" data-season="${escapeHtml(photo.season)}" data-status="${photo.approved ? "reviewed" : "pending"}" data-search="${escapeHtml(search)}"><img src="${imageHref(photo, "card")}" width="${photo.width}" height="${photo.height}" alt="" loading="lazy" decoding="async"><div class="photo-card-copy"><${heading}>${escapeHtml(photo.title)}</${heading}><p>${escapeHtml(photo.locationLabel)} · ${escapeHtml(formatDate(photo.captureDate))}</p><div class="badge-row"><span class="badge ${photo.approved ? "badge-approved" : "badge-review"}">${photo.approved ? "Metadata reviewed" : "Review pending"}</span><span class="badge">${photo.year}</span></div></div></a>`;
 }
 
 function archivePage({ title, description, path, items, current = "/photos/", indexable = false, intro = "" }) {
@@ -171,7 +177,7 @@ function archivePage({ title, description, path, items, current = "/photos/", in
   const seasons = [...new Set(items.map((photo) => photo.season))].sort((a, b) => seasonOrder.indexOf(a) - seasonOrder.indexOf(b));
   const filterOptions = (values) => values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
   const controls = `<form class="archive-controls" data-archive-filters><label class="archive-search"><span>Search</span><input type="search" name="query" placeholder="Title or place" autocomplete="off" data-archive-search></label><label><span>Year</span><select name="year"><option value="all">All years</option>${filterOptions(years)}</select></label><label><span>Season</span><select name="season"><option value="all">All seasons</option>${filterOptions(seasons)}</select></label><label><span>Metadata</span><select name="status"><option value="all">All records</option><option value="reviewed">Reviewed</option><option value="pending">Review pending</option></select></label><button class="icon-button" type="reset">Reset</button></form>`;
-  const body = `<div class="content-shell">${breadcrumbs([["Home", "/"], [title, path]])}<header class="page-heading"><p class="section-kicker">Photographic archive</p><h1 class="page-title">${escapeHtml(title)}</h1><p class="lead">${escapeHtml(description)}</p></header>${intro ? `<div class="prose"><p>${escapeHtml(intro)}</p></div>` : ""}<section aria-labelledby="archive-heading" data-archive>${controls}<div class="section-heading archive-heading"><h2 id="archive-heading">${items.length} photographs</h2><p data-archive-result-count aria-live="polite">Showing ${items.length} of ${items.length} photographs</p></div><div class="archive-grid" data-archive-grid>${items.map((photo) => card(photo)).join("")}</div><div class="catalog-state catalog-empty" data-archive-empty hidden><p>No photographs match these filters.</p><button class="button button-secondary" type="button" data-archive-reset>Reset filters</button></div><div class="archive-footer"><button class="button button-ghost" type="button" data-archive-load-more hidden>Load more</button></div></section></div>`;
+  const body = `<div class="content-shell">${breadcrumbs([["Home", "/"], [title, path]])}<header class="page-heading"><p class="section-kicker">Photographic archive</p><h1 class="page-title">${escapeHtml(title)}</h1><p class="lead">${escapeHtml(description)}</p></header><section aria-labelledby="archive-heading" data-archive>${controls}<div class="section-heading archive-heading"><h2 id="archive-heading" data-archive-heading>${items.length} photographs</h2><p data-archive-result-count>Showing ${items.length} of ${items.length} photographs</p></div>${intro ? `<div class="prose archive-intro"><p>${escapeHtml(intro)}</p></div>` : ""}<p class="sr-only" data-archive-announcement aria-live="polite"></p><div class="archive-grid" data-archive-grid>${items.map((photo) => card(photo)).join("")}</div><div class="catalog-state catalog-empty" data-archive-empty hidden><p>No photographs match these filters.</p><button class="button button-secondary" type="button" data-archive-reset>Reset filters</button></div><div class="archive-footer"><button class="button button-ghost" type="button" data-archive-load-more hidden>Load more</button></div></section></div>`;
   const schema = { "@context": "https://schema.org", "@graph": [
     { "@type": "CollectionPage", "@id": `${absolute(path)}#page`, url: absolute(path), name: title, description, isPartOf: { "@id": `${SITE_ORIGIN}/#website` } },
     breadcrumbSchema([["Home", "/"], [title, path]]), personSchema(),
@@ -182,20 +188,27 @@ function archivePage({ title, description, path, items, current = "/photos/", in
 const approved = photos.filter((photo) => photo.approved);
 const homePhotos = [...approved, ...photos.filter((photo) => !photo.approved)].slice(0, 24);
 const featured = homePhotos[0];
+function photoMetaLine(photo) {
+  const seasonTime = [photo.season !== "Unknown" ? photo.season : "", photo.timeOfDay].filter(Boolean).join(" / ");
+  const date = photo.captureDate ? formatDate(photo.captureDate) : "Date not published";
+  return [seasonTime, date].filter(Boolean).join(" · ");
+}
 const catalog = photos.map((photo) => ({
-  href: photoHref(photo), title: photo.title, place: photo.place, alt: photo.alt,
+  href: photoHref(photo), title: photo.title, place: photo.place, locationLabel: photo.locationLabel, peakRange: photo.peakRange,
+  peakNames: photo.peakNames, locationKind: photo.locationKind, locationConfidence: photo.locationConfidence, alt: photo.alt,
   thumb: imageHref(photo, "thumb"), hero: imageHref(photo, "hero"),
   width: photo.width, height: photo.height, orientation: photo.orientation,
-  year: photo.year, season: photo.season, status: photo.approved ? "reviewed" : "pending",
+  year: photo.year, season: photo.season, timeOfDay: photo.timeOfDay, captureDate: photo.captureDate,
+  meta: photoMetaLine(photo), status: photo.approved ? "reviewed" : "pending",
 }));
 const catalogText = JSON.stringify(catalog);
 const catalogName = `photos.${hashContent(catalogText)}.json`;
 await output(`data/${catalogName}`, catalogText);
 
 const homeBody = `<section class="experience" aria-labelledby="home-title"><div class="wall-stage"><div class="hero-copy"><p class="section-kicker">Nathan Sobol · New Hampshire</p><h1 id="home-title">White Mountains Pictures</h1><p>A field archive of trails, summits, forest light, and weather across New Hampshire’s White Mountains—with one durable, metadata-rich page for every photograph.</p><div class="hero-actions"><a class="button button-primary" href="/photos/2026/">Explore 2026</a><a class="button button-secondary" href="/photos/2025/">Explore 2025</a></div></div>
-<a class="featured-photo" data-featured-link href="${photoHref(featured)}"><img data-featured-image src="${imageHref(featured, "hero")}" width="${featured.width}" height="${featured.height}" alt="${escapeHtml(featured.alt)}" loading="lazy" decoding="async"><div class="featured-caption"><p data-featured-place>${escapeHtml(featured.place)}</p><h2 data-featured-title>${escapeHtml(featured.title)}</h2></div></a>
-<div class="mosaic-field" data-photo-wall data-catalog-url="/data/${catalogName}">${homePhotos.map((photo, index) => `<a class="photo-tile ${photo.orientation === "portrait" ? "is-portrait" : "is-landscape"}" href="${photoHref(photo)}" data-title="${escapeHtml(photo.title)}" data-place="${escapeHtml(photo.place)}" data-hero="${imageHref(photo, "hero")}" data-alt="${escapeHtml(photo.alt)}"><img src="${imageHref(photo, index === 0 ? "hero" : "thumb")}" width="${photo.width}" height="${photo.height}" alt="${escapeHtml(photo.alt)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async"${index === 0 ? ' fetchpriority="high"' : ""}><span>${escapeHtml(photo.place)}</span></a>`).join("")}</div></div>
-<form class="wall-controls" data-wall-filters><label><span>Year</span><select name="year"><option value="all">All years</option><option>2026</option><option>2025</option></select></label><label><span>Season</span><select name="season"><option value="all">All seasons</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option></select></label><label><span>Metadata</span><select name="status"><option value="all">All records</option><option value="reviewed">Reviewed</option><option value="pending">Review pending</option></select></label><button class="icon-button" type="reset">Reset</button></form><div class="wall-footer"><p data-result-count aria-live="polite">Showing ${homePhotos.length} of ${photos.length} photographs</p><button class="button button-ghost" type="button" data-load-more>Load more</button></div><div class="catalog-state catalog-empty" data-catalog-empty hidden><p>No photographs match these filters.</p><button class="button button-secondary" type="button" data-wall-reset>Reset filters</button></div><div class="catalog-state catalog-error" data-catalog-error role="status" hidden><p>Filters are temporarily unavailable. You can still browse the initial selection.</p><button class="button button-secondary" type="button" data-catalog-retry>Retry</button></div></section>
+<a class="featured-photo" data-featured-link href="${photoHref(featured)}"><img data-featured-image src="${imageHref(featured, "hero")}" width="${featured.width}" height="${featured.height}" alt="${escapeHtml(featured.alt)}" loading="eager" fetchpriority="high" decoding="async"><div class="featured-caption"><p data-featured-place>${escapeHtml(featured.locationLabel)}</p><h2 data-featured-title>${escapeHtml(featured.title)}</h2><div class="featured-meta"><span data-featured-meta>${escapeHtml(photoMetaLine(featured))}</span><span class="photo-credit" data-photo-credit>© Nathan Sobol</span></div></div></a>
+<div class="mosaic-field" data-photo-wall data-catalog-url="/data/${catalogName}">${homePhotos.slice(1).map((photo) => `<a class="photo-tile ${photo.orientation === "portrait" ? "is-portrait" : "is-landscape"}" aria-label="${escapeHtml(`${photo.locationLabel} · ${photo.title}`)}" href="${photoHref(photo)}" data-title="${escapeHtml(photo.title)}" data-place="${escapeHtml(photo.locationLabel)}" data-hero="${imageHref(photo, "hero")}" data-alt="${escapeHtml(photo.alt)}"><img src="${imageHref(photo, "thumb")}" width="${photo.width}" height="${photo.height}" alt="" loading="lazy" decoding="async"><span aria-hidden="true"><strong>${escapeHtml(photo.locationLabel)}</strong><small>${escapeHtml(photo.title)}</small></span></a>`).join("")}</div></div>
+<form class="wall-controls" data-wall-filters><label><span>Year</span><select name="year"><option value="all">All years</option><option>2026</option><option>2025</option></select></label><label><span>Season</span><select name="season"><option value="all">All seasons</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option></select></label><label><span>Metadata</span><select name="status"><option value="all">All records</option><option value="reviewed">Reviewed</option><option value="pending">Review pending</option></select></label><button class="icon-button" type="reset">Reset</button></form><div class="wall-footer"><p data-result-count>Showing ${homePhotos.length} of ${photos.length} photographs</p><button class="button button-ghost" type="button" data-load-more>Load more</button></div><p class="sr-only" data-result-announcement aria-live="polite"></p><div class="catalog-state catalog-empty" data-catalog-empty hidden><p>No photographs match these filters.</p><button class="button button-secondary" type="button" data-wall-reset>Reset filters</button></div><div class="catalog-state catalog-error" data-catalog-error role="status" hidden><p>Filters are temporarily unavailable. You can still browse the initial selection.</p><button class="button button-secondary" type="button" data-catalog-retry>Retry</button></div></section>
 <section class="intro-band"><div><p class="section-kicker">Built for discovery</p><h2>Every frame has context.</h2></div><p>Open a photograph to find its descriptive caption, safe location context, capture date, camera and lens data, licensing information, related trip, and neighboring images. Metadata still awaiting review is clearly marked and excluded from search-engine sitemaps.</p></section>
 <section class="catalog-section"><div class="section-heading"><div><p class="section-kicker">Reviewed work</p><h2>Ready for search and sharing</h2></div><a class="button button-secondary" href="/photos/">View archive</a></div><div class="prose"><p>${approved.length} photographs currently pass the archive’s editorial metadata gate. Browse <a href="/photos/2026/">the 2026 archive</a>, explore the complete <a href="/photos/">photo index</a>, or learn how the <a href="/about/photo-metadata/">review policy</a> protects accuracy and sensitive information.</p></div></section>`;
 await output("index.html", document({
@@ -242,15 +255,16 @@ for (const [index, photo] of photos.entries()) {
     .map((slug) => `<li><a href="/collections/${slug}/">${escapeHtml(collectionTitleBySlug.get(slug))}</a></li>`)
     .join("");
   const aperture = photo.fNumber ? `f/${photo.fNumber}` : "Not published";
+  const lengthClass = titleLengthClass(photo.title);
   const metadataRows = [
-    ["Captured", formatDate(photo.captureDate)], ["Safe location", `<a href="${placePath}">${escapeHtml(photo.place)}</a>`],
+    ["Captured", formatDate(photo.captureDate)], ["Location label", escapeHtml(photo.locationLabel)], ["Peak range", escapeHtml(photo.peakRange || "Not published")], ["Safe location", `<a href="${placePath}">${escapeHtml(photo.place)}</a>`],
     ["Camera", escapeHtml(photo.camera || "Not published")], ["Lens", escapeHtml(photo.lens || "Not published")],
     ["Exposure", escapeHtml(formatExposure(photo.exposureTime))], ["Aperture", aperture],
     ["ISO", photo.iso || "Not published"], ["Focal length", photo.focalLength ? `${photo.focalLength} mm` : "Not published"],
     ["Dimensions", `${photo.width} × ${photo.height} px`], ["Creator", `<a href="/about/nathan-sobol/">Nathan Sobol</a>`],
     ["Rights", `<a href="/licensing/">© Nathan Sobol · licensing</a>`], ["Original", `<a href="${original}">View original JPEG</a>`],
   ];
-  const body = `<div class="content-shell">${breadcrumbs([["Home", "/"], ["Photos", "/photos/"], [String(photo.year), `/photos/${photo.year}/`], [photo.title, path]])}<header class="page-heading"><p class="section-kicker">${photo.approved ? "Reviewed photographic record" : "Metadata review pending"}</p><h1 class="page-title">${escapeHtml(photo.title)}</h1><p class="lead">${escapeHtml(photo.description)}</p></header><figure class="page-hero"><img src="${imageHref(photo, "detail")}" srcset="${imageHref(photo, "card")} 640w, ${imageHref(photo, "detail")} 2400w" sizes="(max-width: 1180px) calc(100vw - 32px), 1132px" width="${photo.width}" height="${photo.height}" alt="${escapeHtml(photo.alt)}" fetchpriority="high" decoding="async"><figcaption class="sr-only">${escapeHtml(photo.alt)}</figcaption></figure>
+  const body = `<div class="content-shell">${breadcrumbs([["Home", "/"], ["Photos", "/photos/"], [String(photo.year), `/photos/${photo.year}/`], [photo.title, path]])}<header class="page-heading"><p class="section-kicker">${photo.approved ? "Reviewed photographic record" : "Metadata review pending"}</p><h1 class="page-title${lengthClass ? ` ${lengthClass}` : ""}">${escapeHtml(photo.title)}</h1><p class="lead">${escapeHtml(photo.description)}</p></header><figure class="page-hero"><img src="${imageHref(photo, "detail")}" srcset="${imageHref(photo, "card")} 640w, ${imageHref(photo, "detail")} 2400w" sizes="(max-width: 1180px) calc(100vw - 32px), 1132px" width="${photo.width}" height="${photo.height}" alt="${escapeHtml(photo.alt)}" fetchpriority="high" decoding="async"><figcaption class="sr-only">${escapeHtml(photo.alt)}</figcaption></figure>
 <div class="photo-layout"><article class="photo-story"><h2>${escapeHtml(photo.headline)}</h2><p>${escapeHtml(photo.extendedDescription)}</p>${tripPath ? `<p>This image belongs to <a href="${tripPath}">${escapeHtml(photo.tripLabel || "a White Mountains field trip")}</a>.</p>` : ""}${collectionLinks ? `<nav class="collection-links" aria-label="Photograph collections"><p>Explore this photograph in:</p><ul>${collectionLinks}</ul></nav>` : ""}<ul class="tag-list">${photo.tags.slice(0, 14).map((tag) => `<li>${escapeHtml(tag)}</li>`).join("")}</ul><p><a class="button button-secondary" href="${licenseHref}">Ask about licensing this photograph</a></p><nav class="pager" aria-label="Adjacent photographs">${previous ? `<a href="${photoHref(previous)}">Previous<strong>${escapeHtml(previous.title)}</strong></a>` : "<span></span>"}${next ? `<a href="${photoHref(next)}">Next<strong>${escapeHtml(next.title)}</strong></a>` : ""}</nav></article>
 <aside class="metadata-panel" aria-labelledby="metadata-title"><h2 id="metadata-title">Photo metadata</h2><dl>${metadataRows.map(([term, value]) => `<dt>${term}</dt><dd>${value}</dd>`).join("")}</dl><p class="metadata-note">${photo.approved ? "This record passed the archive’s human-review and completeness gate." : `This page is excluded from search sitemaps until editorial review is complete. ${escapeHtml(photo.reviewReasons.join(" "))}`}</p></aside></div></div>`;
   const schema = { "@context": "https://schema.org", "@graph": [
@@ -309,6 +323,7 @@ const prosePages = [
   },
   {
     path: "/about/photo-metadata/", title: "Photo Metadata and Editorial Policy",
+    current: "/about/nathan-sobol/",
     description: "How White Mountains Pictures reviews, publishes, and protects photographic metadata.",
     body: `<div class="content-shell">${breadcrumbs([["Home", "/"], ["Metadata policy", "/about/photo-metadata/"]])}<header class="page-heading"><p class="section-kicker">Archive policy</p><h1 class="page-title">Photo metadata</h1><p class="lead">Useful context for people and search engines, with an explicit human-review boundary.</p></header><article class="prose"><h2>What a photo page publishes</h2><p>Pages may include a descriptive title, alternative text, caption, capture date, broad public location, trip association, camera model, lens, aperture, exposure, ISO, focal length, image dimensions, creator, rights, and licensing link.</p><h2>What is withheld</h2><p>Camera GPS, precise off-trail coordinates, equipment serial numbers, private filesystem paths, editing histories, and unneeded raw metadata are excluded. Trip coordinates are treated as route context—not proof of the camera’s position.</p><h2>Indexing gate</h2><p>Every photograph has a stable page so the archive can be navigated without JavaScript. A page enters search sitemaps only after the source record is marked reviewed, required descriptive fields are present, dimensions are valid, camera values are plausible, and duplicate titles are resolved. Pending records use <code>noindex,follow</code>.</p></article></div>`,
   },
@@ -323,7 +338,7 @@ for (const page of prosePages) {
   await output(`${page.path.slice(1)}index.html`, document({ ...page, schema: { "@context": "https://schema.org", "@graph": [{ "@type": "WebPage", url: absolute(page.path), name: page.title }, personSchema()] } }));
 }
 
-await output("404.html", document({ title: "Page not found", description: "The requested White Mountains Pictures page was not found.", path: "/404/", robots: "noindex,nofollow", body: `<div class="content-shell"><header class="page-heading"><p class="section-kicker">404</p><h1 class="page-title">That trail ends here.</h1><p class="lead">The requested page was not found. Return to the <a href="/photos/">photo archive</a>.</p></header></div>` }));
+await output("404.html", document({ title: "Page not found", description: "The requested White Mountains Pictures page was not found.", path: "/404/", robots: "noindex,nofollow", body: `<div class="content-shell"><header class="page-heading"><p class="section-kicker">404</p><h1 class="page-title">That trail ends here.</h1><p class="lead">The requested page was not found.</p><p><a class="button button-primary" href="/photos/">Browse the photo archive</a></p></header></div>` }));
 
 function xml(value) {
   return escapeHtml(value).replaceAll("&#39;", "&apos;");
@@ -344,14 +359,27 @@ await output("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapind
 await output("robots.txt", `User-agent: *\nAllow: /\nDisallow: /images/resize\n\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`);
 await output("_headers", `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()\n  Content-Security-Policy: default-src 'self'; img-src 'self' https://photos.whitemountains.pictures data:; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests\n  Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400\n\n/*.css\n  Cache-Control: public, max-age=31536000, immutable\n\n/*.js\n  Cache-Control: public, max-age=31536000, immutable\n\n/data/*\n  Cache-Control: public, max-age=31536000, immutable\n\n/sitemaps/*\n  Cache-Control: public, max-age=900, s-maxage=3600\n\n/robots.txt\n  Cache-Control: public, max-age=900, s-maxage=3600\n`);
 
+const locationLabelCounts = Object.fromEntries([...groupBy(photos, "locationLabel")]
+  .sort((a, b) => b[1].length - a[1].length)
+  .map(([label, items]) => [label, items.length]));
 const report = {
   generatedAt, totalPhotos: photos.length, years: Object.fromEntries([2025, 2026].map((year) => [year, photos.filter((p) => p.year === year).length])),
   approvedPhotos: approved.length, pendingReview: photos.length - approved.length,
   duplicateTitleRecords: photos.filter((p) => p.reviewReasons.includes("Duplicate title must be resolved before indexing.")).length,
+  captureYearMismatchRecords: photos.filter((p) => p.captureYearMismatch).length,
   tripPages: trips.size, placePages: places.size, collectionPages: [...collectionGroups].filter(([, items]) => items.length).length,
   sitemapPhotoUrls: photoUrls.length, sitemapHubUrls: hubUrls.length,
   assets: { css: cssName, js: jsName, catalog: catalogName },
   uiAssets: { catalogCore: catalogCoreName },
+  locationCuration: {
+    total: photos.length,
+    peakLabels: photos.filter((photo) => photo.locationKind === "peak").length,
+    rangeLabels: photos.filter((photo) => photo.locationKind === "range").length,
+    areaLabels: photos.filter((photo) => photo.locationKind === "area").length,
+    lowConfidence: photos.filter((photo) => photo.locationConfidence === "low").length,
+    labels: locationLabelCounts,
+    nh48RangeSource: "https://nh48.info/data/nh48.json",
+  },
 };
 await output("build-report.json", `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));

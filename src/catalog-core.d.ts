@@ -16,6 +16,8 @@ export interface CatalogItem {
 
 export const DEFAULT_FILTERS: Readonly<CatalogFilters>;
 
+export function canonicalSeason(value: string): string;
+
 export function normalizeFilters(
   input?: Partial<CatalogFilters>,
   items?: ReadonlyArray<CatalogItem>,
@@ -40,3 +42,9 @@ export function filtersFromSearch(
 export function filtersToSearch(input?: Partial<CatalogFilters>): string;
 
 export function nextVisibleCount(current: number, total: number, increment?: number): number;
+
+export function photographCount(count: number): string;
+
+export function archiveHeading(matching: number, total: number): string;
+
+export function archiveSummary(visible: number, matching: number, total: number): string;

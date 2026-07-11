@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { canonicalSeason } from "../src/catalog-core.js";
+import { curateLocation } from "../src/location-curation.js";
 
 export const SITE_ORIGIN = "https://whitemountains.pictures";
 export const MEDIA_ORIGIN = "https://photos.whitemountains.pictures";
@@ -56,6 +58,27 @@ function cleanText(value, fallback = "") {
   return text || fallback;
 }
 
+const TIME_OF_DAY_LABELS = Object.freeze({
+  morning: "Morning", afternoon: "Afternoon", evening: "Evening", sunset: "Sunset",
+  sunrise: "Sunrise", twilight: "Twilight", night: "Night", day: "Daylight",
+});
+
+function timeOfDayLabel(value, captureDate) {
+  const explicit = cleanText(value).toLowerCase();
+  if (TIME_OF_DAY_LABELS[explicit]) return TIME_OF_DAY_LABELS[explicit];
+  if (!captureDate) return "";
+  const date = new Date(captureDate);
+  if (Number.isNaN(date.valueOf())) return "";
+  const hour = Number(new Intl.DateTimeFormat("en-US", {
+    hour: "numeric", hour12: false, timeZone: "America/New_York",
+  }).format(date));
+  if (hour >= 5 && hour < 10) return "Morning";
+  if (hour >= 10 && hour < 16) return "Afternoon";
+  if (hour >= 16 && hour < 20) return "Evening";
+  if (hour >= 20 || hour < 5) return "Night";
+  return "";
+}
+
 function approvedMetadata(photo) {
   const required = [photo.title, photo.description, photo.alt, photo.captureDate, photo.place];
   const validDimensions = finitePositive(photo.width) && finitePositive(photo.height);
@@ -73,6 +96,23 @@ export function normalize2025(record, manifestEntry) {
   const objectKey = manifestEntry?.objectKeys?.image
     ?? `photos/2025/originals/${String(identity.filename ?? "").toLowerCase()}`;
   const place = cleanText(ai.safeLocationName ?? ai.locationName, "White Mountains, New Hampshire");
+  const sourceCaptureValue = cleanText(normalized.capturedAt ?? trip.date);
+  const sourceCaptureDate = sourceCaptureValue.slice(0, 10);
+  const captureYearMismatch = Boolean(sourceCaptureDate && !sourceCaptureDate.startsWith("2025-"));
+  const curatedLocation = curateLocation({
+    inferredLabel: manifestEntry?.inferredLocation?.label ?? place,
+    title: ai.title,
+    alt: ai.alt,
+    routeLabel: trip.routeContext,
+    tripLabel: trip.label,
+    broadPlace: place,
+  });
+  const reviewReasons = manifestEntry?.needsHumanReview === false
+    ? []
+    : ["The source archive marks this record for human review."];
+  if (captureYearMismatch) {
+    reviewReasons.push("Capture date does not match the 2025 archive year and is not published.");
+  }
   const photo = {
     id: cleanText(identity.photoId ?? manifestEntry?.photoId),
     year: 2025,
@@ -85,9 +125,16 @@ export function normalize2025(record, manifestEntry) {
     extendedDescription: cleanText(ai.extendedDescription, ai.description),
     alt: cleanText(ai.alt, ai.title),
     place,
+    locationLabel: curatedLocation.label,
+    peakNames: curatedLocation.peakNames,
+    peakRange: curatedLocation.range,
+    locationKind: curatedLocation.kind,
+    locationConfidence: curatedLocation.confidence,
     region: cleanText(ai.region, "White Mountains"),
-    season: cleanText(record.derived?.season ?? trip.season, "Unknown"),
-    captureDate: cleanText(normalized.capturedAt ?? trip.date).slice(0, 10),
+    season: canonicalSeason(cleanText(record.derived?.season ?? trip.season, "Unknown")),
+    captureDate: captureYearMismatch ? "" : sourceCaptureDate,
+    timeOfDay: captureYearMismatch ? "" : timeOfDayLabel(ai.timeOfDay, sourceCaptureValue),
+    captureYearMismatch,
     camera: cleanText(normalized.camera),
     lens: cleanText(normalized.lens),
     exposureTime: finitePositive(normalized.exposureTime),
@@ -101,8 +148,8 @@ export function normalize2025(record, manifestEntry) {
     tripLabel: cleanText(trip.label ?? trip.routeContext),
     collectionIds: [...new Set((ai.collectionIds ?? record.derived?.collectionCandidates ?? []).map(slugify))],
     tags: [...new Set([...(ai.tags ?? []), ...(ai.keywords ?? []), ...(record.derived?.tags ?? [])].map(cleanText).filter(Boolean))].slice(0, 24),
-    needsHumanReview: manifestEntry?.needsHumanReview !== false,
-    reviewReasons: manifestEntry?.needsHumanReview === false ? [] : ["The source archive marks this record for human review."],
+    needsHumanReview: manifestEntry?.needsHumanReview !== false || captureYearMismatch,
+    reviewReasons,
   };
   photo.approved = approvedMetadata(photo);
   return photo;
@@ -112,8 +159,22 @@ export function normalize2026(record, manifestEntry) {
   const camera = record.camera ?? {};
   const image = record.image ?? {};
   const trip = record.tripContext ?? {};
-  const captureDate = cleanText(trip.dateCandidates?.[0] ?? record.seasonEvidence?.basis?.match(/\d{4}-\d{2}-\d{2}/)?.[0]);
+  const sourceCaptureDate = cleanText(trip.dateCandidates?.[0] ?? record.seasonEvidence?.basis?.match(/\d{4}-\d{2}-\d{2}/)?.[0]);
+  const captureYearMismatch = Boolean(sourceCaptureDate && !sourceCaptureDate.startsWith("2026-"));
+  const reviewReasons = [...(record.confidenceWarnings ?? [])];
+  if (captureYearMismatch) {
+    reviewReasons.push("Capture date does not match the 2026 archive year and is not published.");
+  }
   const place = cleanText(record.location?.label ?? record.inferredLocation?.label, "White Mountains, New Hampshire");
+  const curatedLocation = curateLocation({
+    peakNames: trip.peakNames ?? record.tripPeakNames ?? [],
+    inferredLabel: place,
+    title: record.title,
+    alt: record.alt,
+    routeLabel: trip.routeLabel,
+    tripLabel: trip.tripLabel,
+    broadPlace: place,
+  });
   const photo = {
     id: cleanText(record.photoId ?? manifestEntry?.photoId),
     year: 2026,
@@ -126,9 +187,16 @@ export function normalize2026(record, manifestEntry) {
     extendedDescription: cleanText(record.extendedDescription, record.description),
     alt: cleanText(record.alt, record.title),
     place,
+    locationLabel: curatedLocation.label,
+    peakNames: curatedLocation.peakNames,
+    peakRange: curatedLocation.range,
+    locationKind: curatedLocation.kind,
+    locationConfidence: curatedLocation.confidence,
     region: cleanText(record.location?.state, "New Hampshire"),
-    season: cleanText(record.season, "Unknown").replace(/^./, (letter) => letter.toUpperCase()),
-    captureDate,
+    season: canonicalSeason(cleanText(record.season, "Unknown")),
+    captureDate: captureYearMismatch ? "" : sourceCaptureDate,
+    timeOfDay: captureYearMismatch ? "" : timeOfDayLabel(record.timeOfDay, sourceCaptureDate),
+    captureYearMismatch,
     camera: cleanText(camera.model),
     lens: cleanText(camera.lens),
     exposureTime: finitePositive(camera.shutterSpeed),
@@ -144,8 +212,8 @@ export function normalize2026(record, manifestEntry) {
     tripLabel: cleanText(trip.tripLabel ?? record.tripPeakNames?.join(" and ")),
     collectionIds: [],
     tags: [...new Set([...(record.tags ?? []), ...(record.seoTags ?? [])].map(cleanText).filter(Boolean))].slice(0, 24),
-    needsHumanReview: manifestEntry?.needsHumanReview !== false || record.needsHumanReview !== false,
-    reviewReasons: record.confidenceWarnings ?? [],
+    needsHumanReview: manifestEntry?.needsHumanReview !== false || record.needsHumanReview !== false || captureYearMismatch,
+    reviewReasons,
   };
   photo.approved = approvedMetadata(photo);
   return photo;

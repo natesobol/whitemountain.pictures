@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  archiveHeading,
+  archiveSummary,
+  canonicalSeason,
   DEFAULT_FILTERS,
   filterCatalog,
   filtersFromSearch,
@@ -7,6 +10,7 @@ import {
   nextVisibleCount,
   normalizeFilters,
   optionCounts,
+  photographCount,
 } from "../src/catalog-core.js";
 
 const photos = [
@@ -37,6 +41,18 @@ const photos = [
 ];
 
 describe("catalog filters", () => {
+  it("normalizes fall and autumn into one canonical season", () => {
+    const seasonal = [
+      { ...photos[1]!, href: "/fall/", title: "Fall ridge", season: "Fall" },
+      { ...photos[1]!, href: "/autumn/", title: "Autumn ridge", season: "Autumn" },
+    ];
+
+    expect(canonicalSeason("fall")).toBe("Autumn");
+    expect(canonicalSeason("AUTUMN")).toBe("Autumn");
+    expect(filterCatalog(seasonal, { ...DEFAULT_FILTERS, season: "Autumn" })).toEqual(seasonal);
+    expect(optionCounts(seasonal, DEFAULT_FILTERS, "season")).toEqual(new Map([["Autumn", 2]]));
+  });
+
   it("combines structured filters with case-insensitive title and place search", () => {
     expect(filterCatalog(photos, {
       year: "2026",
@@ -73,6 +89,13 @@ describe("catalog filters", () => {
 });
 
 describe("catalog URL state", () => {
+  it("maps legacy Fall URLs to canonical Autumn state", () => {
+    const seasonal = [{ ...photos[1]!, season: "Autumn" }];
+
+    expect(filtersFromSearch("?season=Fall", seasonal).season).toBe("Autumn");
+    expect(filtersToSearch({ ...DEFAULT_FILTERS, season: "Fall" })).toBe("?season=Autumn");
+  });
+
   it("reads known parameters and falls back safely for invalid values", () => {
     expect(filtersFromSearch("?year=2026&season=Winter&status=reviewed&q=Pierce", photos)).toEqual({
       year: "2026",
@@ -96,5 +119,23 @@ describe("catalog reveal counts", () => {
     expect(nextVisibleCount(24, 100, 36)).toBe(60);
     expect(nextVisibleCount(60, 70, 36)).toBe(70);
     expect(nextVisibleCount(70, 70, 36)).toBe(70);
+  });
+});
+
+describe("catalog result copy", () => {
+  it("pluralizes photograph counts", () => {
+    expect(photographCount(0)).toBe("0 photographs");
+    expect(photographCount(1)).toBe("1 photograph");
+    expect(photographCount(2)).toBe("2 photographs");
+  });
+
+  it("keeps the original total visible for filtered and empty states", () => {
+    expect(archiveHeading(356, 356)).toBe("356 photographs");
+    expect(archiveHeading(1, 356)).toBe("1 matching photograph");
+    expect(archiveHeading(0, 356)).toBe("No matching photographs");
+
+    expect(archiveSummary(24, 356, 356)).toBe("Showing 24 of 356 photographs");
+    expect(archiveSummary(1, 1, 356)).toBe("Showing 1 matching photograph · 356 total");
+    expect(archiveSummary(0, 0, 356)).toBe("0 matching photographs · 356 total");
   });
 });
