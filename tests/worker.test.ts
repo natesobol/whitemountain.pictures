@@ -7,7 +7,13 @@ describe("canonical routing", () => {
   it("does not redirect an HTTPS visitor when Cloudflare uses an internal HTTP URL", async () => {
     const response = await exports.default.fetch(new Request(
       "http://whitemountains.pictures/healthz",
-      { headers: { "x-forwarded-proto": "https" }, redirect: "manual" },
+      {
+        headers: {
+          "cf-visitor": JSON.stringify({ scheme: "https" }),
+          "x-forwarded-proto": "http",
+        },
+        redirect: "manual",
+      },
     ));
 
     expect(response.status).toBe(200);

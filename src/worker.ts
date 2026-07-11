@@ -34,7 +34,7 @@ export interface ParsedImageRequest {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    const visitorProtocol = request.headers.get("x-forwarded-proto") ?? url.protocol.slice(0, -1);
+    const visitorProtocol = getVisitorProtocol(request, url);
 
     try {
       if (url.hostname === "www.whitemountains.pictures" || visitorProtocol !== "https") {
@@ -114,6 +114,21 @@ export default {
     }
   },
 } satisfies ExportedHandler<Env>;
+
+function getVisitorProtocol(request: Request, url: URL): string {
+  const cfVisitor = request.headers.get("cf-visitor");
+  if (cfVisitor) {
+    try {
+      const parsed = JSON.parse(cfVisitor) as { scheme?: unknown };
+      if (parsed.scheme === "http" || parsed.scheme === "https") {
+        return parsed.scheme;
+      }
+    } catch {
+      // Fall back to the forwarded protocol or request URL.
+    }
+  }
+  return request.headers.get("x-forwarded-proto") ?? url.protocol.slice(0, -1);
+}
 
 export function parsePresetRequest(
   presetName: string,
