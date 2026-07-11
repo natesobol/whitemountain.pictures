@@ -27,6 +27,7 @@ describe("canonical routing", () => {
 
     expect(response.status).toBe(308);
     expect(response.headers.get("location")).toBe("https://whitemountains.pictures/photos/2026/?season=spring");
+    expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("no-store");
   });
 
   it("redirects legacy originals to the R2 custom domain", async () => {

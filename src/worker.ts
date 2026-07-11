@@ -41,7 +41,7 @@ export default {
         const canonical = new URL(request.url);
         canonical.protocol = "https:";
         canonical.hostname = "whitemountains.pictures";
-        return redirect(canonical, 308);
+        return redirect(canonical, 308, "no-store");
       }
 
       if (request.method !== "GET" && request.method !== "HEAD") {
@@ -290,6 +290,7 @@ function redirect(target: URL, status: 301 | 302 | 303 | 307 | 308, cacheControl
       headers: {
         location: target.toString(),
         "cache-control": cacheControl,
+        "cloudflare-cdn-cache-control": cacheControl,
       },
     }),
   );

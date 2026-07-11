@@ -29,6 +29,7 @@ const htmlFiles = files.filter((file) => file.endsWith(".html"));
 const photoFiles = htmlFiles.filter((file) => /[\\/]photos[\\/](2025|2026)[\\/][^\\/]+[\\/]index\.html$/.test(file));
 const report = JSON.parse(await readFile(join(root, "build-report.json"), "utf8"));
 const home = await readFile(join(root, "index.html"), "utf8");
+const headerRules = await readFile(join(root, "_headers"), "utf8");
 const stylesheet = await readFile(join(root, report.assets.css), "utf8");
 const clientScript = await readFile(join(root, report.assets.js), "utf8");
 const catalog = JSON.parse(await readFile(join(root, "data", report.assets.catalog), "utf8"));
@@ -40,6 +41,7 @@ const notFound = await readFile(join(root, "404.html"), "utf8");
 const samplePhoto = await readFile(photoFiles[0], "utf8");
 
 assert(report.totalPhotos === 356, `Expected 356 photos; found ${report.totalPhotos}`);
+assert(/\/\*\s+[\s\S]*Cloudflare-CDN-Cache-Control:\s*no-store/i.test(headerRules), "HTML responses are not excluded from the cross-host edge cache");
 assert(report.locationCuration?.total === report.totalPhotos, "Location curation report does not cover every photo");
 assert(catalog.length === report.totalPhotos, `Catalog contains ${catalog.length} photos; expected ${report.totalPhotos}`);
 assert(catalog.every((photo) => photo.locationLabel && photo.meta && Array.isArray(photo.peakNames)), "Every catalog photo needs curated location and display metadata");
