@@ -63,6 +63,52 @@ assert(home.includes("data-photo-credit"), "Homepage featured card has no visibl
 assert(home.includes("data-catalog-empty"), "Homepage has no empty state");
 assert(home.includes("data-catalog-error"), "Homepage has no catalog error state");
 assert(home.includes('aria-live="polite"'), "Homepage result count is not announced");
+const requiredHomepageCopy = [
+  "Photographs by Nathan Sobol · New Hampshire",
+  "Walk slowly through trails, summits, forest light, and changing weather across New Hampshire’s White Mountains.",
+  "Begin with 2026",
+  "Begin with 2025",
+  "Clear filters",
+  "Show more photographs",
+  "No photographs match these choices.",
+  "The gallery could not open the full selection. The photographs already here are still available.",
+  "Try again",
+  "A quiet way through",
+  "There is no right order here.",
+  "Choose a year or season, or begin with the photograph that holds your attention.",
+  "Keep walking",
+  "One photograph leads to another.",
+  "Open any image for a closer view, then continue by place, outing, year, or the neighboring frame.",
+  "View the full gallery",
+  ">Gallery<",
+  ">About the photographs<",
+];
+for (const phrase of requiredHomepageCopy) {
+  assert(home.includes(phrase), `Homepage is missing approved gallery copy: ${phrase}`);
+}
+const forbiddenHomepageCopy = [
+  "field archive",
+  "metadata-rich",
+  ">Metadata<",
+  "All records",
+  "Review pending",
+  "safe location context",
+  "camera and lens data",
+  "camera metadata",
+  "awaiting review",
+  "search-engine sitemaps",
+  "Reviewed work",
+  "Ready for search and sharing",
+  "editorial metadata gate",
+  "View archive",
+  ">Archive<",
+  ">Metadata policy<",
+];
+for (const phrase of forbiddenHomepageCopy) {
+  assert(!home.includes(phrase), `Homepage retains technical visitor copy: ${phrase}`);
+}
+assert(home.includes('name="year"') && home.includes('name="season"'), "Homepage lost its Year or Season control");
+assert(!home.includes('name="status"'), "Homepage retains the technical Metadata status control");
 const featuredHref = home.match(/data-featured-link href="([^"]+)"/)?.[1];
 const wallMarkup = home.match(/<div class="mosaic-field"[^>]*>([\s\S]*?)<\/div><\/div>/)?.[1] ?? "";
 assert(Boolean(featuredHref) && !wallMarkup.includes(`href="${featuredHref}"`), "Homepage repeats the featured photo in the mosaic");
@@ -116,6 +162,8 @@ assert(/@media\s*\(min-width:\s*821px\)\s*and\s*\(max-width:\s*1120px\)/.test(st
 assert(clientScript.includes(report.uiAssets.catalogCore), "Client does not import the generated catalog-core asset");
 assert(clientScript.includes('window.addEventListener("popstate"'), "Client does not restore filter history state");
 assert(clientScript.includes("featured.link.hidden = visible.length === 0"), "Home filtering can leave a stale featured photograph visible");
+assert(clientScript.includes("The gallery could not open the full selection. The photographs already here are still available."), "Homepage error announcement does not use the approved gallery wording");
+assert(!clientScript.includes("Filters are temporarily unavailable. Showing the initial selection."), "Homepage client retains technical filter error wording");
 assert(clientScript.includes("archiveSummary"), "Client controllers do not share the result-copy contract");
 assert(clientScript.includes("data-archive-announcement"), "Client does not update the debounced result announcement");
 assert(clientScript.includes("data-mobile-nav"), "Client does not enhance the mobile navigation disclosure");

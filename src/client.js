@@ -177,7 +177,7 @@ function initHomeCatalog() {
       setControlsDisabled(true);
       if (errorState instanceof HTMLElement) errorState.hidden = false;
       if (resultCount) resultCount.textContent = "Showing the initial selection";
-      scheduleAnnouncement(resultAnnouncement, "Filters are temporarily unavailable. Showing the initial selection.");
+      scheduleAnnouncement(resultAnnouncement, "The gallery could not open the full selection. The photographs already here are still available.");
       if (loadMoreButton instanceof HTMLButtonElement) loadMoreButton.hidden = true;
     }
   };
