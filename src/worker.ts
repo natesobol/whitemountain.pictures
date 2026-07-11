@@ -34,9 +34,10 @@ export interface ParsedImageRequest {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const visitorProtocol = request.headers.get("x-forwarded-proto") ?? url.protocol.slice(0, -1);
 
     try {
-      if (url.hostname === "www.whitemountains.pictures" || url.protocol !== "https:") {
+      if (url.hostname === "www.whitemountains.pictures" || visitorProtocol !== "https") {
         const canonical = new URL(request.url);
         canonical.protocol = "https:";
         canonical.hostname = "whitemountains.pictures";

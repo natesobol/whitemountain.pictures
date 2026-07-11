@@ -4,6 +4,15 @@ import { describe, expect, it } from "vitest";
 import { parseLegacyResizeRequest, parsePresetRequest } from "../src/worker";
 
 describe("canonical routing", () => {
+  it("does not redirect an HTTPS visitor when Cloudflare uses an internal HTTP URL", async () => {
+    const response = await exports.default.fetch(new Request(
+      "http://whitemountains.pictures/healthz",
+      { headers: { "x-forwarded-proto": "https" }, redirect: "manual" },
+    ));
+
+    expect(response.status).toBe(200);
+  });
+
   it("redirects www to HTTPS apex while preserving the path and query", async () => {
     const response = await exports.default.fetch(new Request(
       "http://www.whitemountains.pictures/photos/2026/?season=spring",
